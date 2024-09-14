@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Param, Delete, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Delete,
+  HttpCode,
+  Body,
+  Put,
+} from '@nestjs/common';
 import { MembersClubsService } from './members_clubs.service';
 
 @Controller('clubs')
@@ -24,6 +33,14 @@ export class MembersClubsController {
     @Param('memberId') memberId: string,
   ) {
     return this.membersClubsService.findMemberFromClub(clubId, memberId);
+  }
+
+  @Put(':clubId/members')
+  async updateMembersFromClub(
+    @Param('clubId') clubId: string,
+    @Body() memberIds: string[],
+  ) {
+    return this.membersClubsService.updateMembersFromClub(clubId, memberIds);
   }
 
   @Delete(':clubId/members/:memberId')

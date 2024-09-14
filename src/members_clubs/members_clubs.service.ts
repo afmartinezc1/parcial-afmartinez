@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Club } from '../clubs/entities/club.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Member } from '../members/entities/member.entity';
 
@@ -73,15 +73,22 @@ export class MembersClubsService {
     return this.clubRepository.save(club);
   }
 
-  // async updateMembersFromClub(clubId: string, memberIds: string[]) {
-  //   const club = await this.clubRepository.findOne({ where: { id: clubId } });
-  //   if (!club) {
-  //     throw new NotFoundException('El club no existe');');
-  //   }
-  //   const members = await this.memberRepository.find({
-  //     where: { id: { $in: memberIds } },
-  //   });
-  //   club.members = members;
-  //   return this.clubRepository.save(club);
-  // }
+  async updateMembersFromClub(clubId: string, memberIds: string[]) {
+    const club = await this.clubRepository.findOne({ where: { id: clubId } });
+    if (!club) {
+      throw new NotFoundException('El club no existe');
+    }
+    const members = await this.memberRepository.find({
+      where: { id: In(memberIds) },
+    });
+    //Validar que todos los socios existan
+    for (const memberId of memberIds) {
+      const member = members.find((m) => m.id === memberId);
+      if (!member) {
+        throw new NotFoundException('Uno de los socios no existe');
+      }
+    }
+    club.members = members;
+    return this.clubRepository.save(club);
+  }
 }

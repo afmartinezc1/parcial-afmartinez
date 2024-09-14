@@ -145,4 +145,39 @@ describe('MembersClubsService', () => {
       service.deleteMemberFromClub(club.id, newMember.id),
     ).rejects.toHaveProperty('message', 'El socio no es parte del club');
   });
+
+  it('should update the members of a club', async () => {
+    const newMembers: Member[] = [];
+    for (let i = 0; i < 3; i++) {
+      const newMember: Member = await memberRepository.save({
+        name: faker.person.fullName(),
+        mail: faker.internet.email(),
+        birthdate: new Date(),
+      });
+      newMembers.push(newMember);
+    }
+
+    const memberIds = newMembers.map((m) => m.id);
+    const updatedClub = await service.updateMembersFromClub(club.id, memberIds);
+
+    expect(updatedClub.members).toHaveLength(newMembers.length);
+    expect(updatedClub.members).toEqual(expect.arrayContaining(newMembers));
+  });
+
+  it('should throw an exception if the club does not exist', async () => {
+    const memberIds = membersList.map((m) => m.id);
+
+    await expect(
+      service.updateMembersFromClub('invalid-club-id', memberIds),
+    ).rejects.toHaveProperty('message', 'El club no existe');
+  });
+
+  it('should throw an exception if one or more members do not exist', async () => {
+    const invalidMemberId = 'invalid-member-id';
+    const memberIds = [...membersList.map((m) => m.id), invalidMemberId];
+
+    await expect(
+      service.updateMembersFromClub(club.id, memberIds),
+    ).rejects.toHaveProperty('message', 'Uno de los socios no existe');
+  });
 });
