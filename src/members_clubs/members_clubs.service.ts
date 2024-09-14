@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Club } from 'src/clubs/entities/club.entity';
+import { Club } from '../clubs/entities/club.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Member } from 'src/members/entities/member.entity';
+import { Member } from '../members/entities/member.entity';
 
 @Injectable()
 export class MembersClubsService {
